@@ -30,7 +30,7 @@ func main() {
 		fmt.Println(line)
 		// fmt.Printf("  %d %d %c %s\n", min, max, ch, password)
 
-		// PART 1
+		// PART 1 - counts must between min/max
 		if n := strings.Count(password, string(ch)); n >= min && n <= max {
 			// fmt.Println("  OK")
 			valid_part1++
@@ -38,7 +38,7 @@ func main() {
 			// fmt.Printf("  BAD (%d %c)\n", n, ch)
 		}
 
-		// PART 2
+		// PART 2 - the numbers are actually index requirements
 		ch_b := byte(ch)
 		char_in_pos := 0
 		if password[min - 1] == ch_b {

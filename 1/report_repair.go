@@ -16,17 +16,16 @@ const TARGET = 2020
 func findDoubleTarget(input []int, target int) int {
 	seen_numbers := make(map[int]bool)
 
-	for i := 0; i < len(input); i++ {
-		curr := input[i]
+	for _, v := range input {
 		// fmt.Print("Checking ", curr, "... ")
 
 		// have we seen TARGET - curr?
-		_, ok := seen_numbers[TARGET - curr]
+		_, ok := seen_numbers[TARGET - v]
 		if ok {
-			return curr
+			return v
 		}
 		// fmt.Println("haven't seen", TARGET - curr)
-		seen_numbers[curr] = true
+		seen_numbers[v] = true
 	}
 	return 0
 }
@@ -38,8 +37,7 @@ func findTripleTarget(input []int, target int) (int, int, int) {
 
 	for i := 1; i < len(input); i++ {
 		x := input[i]
-		for j := 0; j < i; j++ {
-			y := input[j]
+		for _, y := range input {
 
 			v, ok := seen_double_sums[2020 - y]
 			if ok {
