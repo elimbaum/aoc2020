@@ -18,6 +18,10 @@ type Instruction struct {
 // returns
 //   - bool: did it loop or terminate
 //   - int:  accumulator value when loop detected, or terminated
+//
+// pass in a unique run number for each call. executed flag is checked
+// against this value (executed flag stores run value last time the program
+// looped.)
 func loops(program *[]*Instruction, runno int) (bool, int) {
 	pc := 0
 	acc := 0
@@ -60,8 +64,6 @@ func main() {
 	}
 
 	for i, inst := range program {
-		// inst.executed = false
-
 		if inst.op == "acc" {
 			continue
 		}
@@ -74,8 +76,11 @@ func main() {
 			new = "jmp"
 		}
 
+		// swap instructions
 		inst.op = new
 		does_loop, acc := loops(&program, i)
+
+		// swap back
 		inst.op = old
 
 		if does_loop {
@@ -85,4 +90,8 @@ func main() {
 			break
 		} 
 	}
+
+	// for _, k := range program {
+	// 	fmt.Println(*k)
+	// }
 }
