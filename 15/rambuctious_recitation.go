@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const MAX int = 30000000
+const MAX int = 30_000_000
 
 func main() {
 	file, _ := os.Open("input.txt")
@@ -48,16 +48,24 @@ func main() {
 			if already_seen {
 				next = turn - last_turn - 1
 				// fmt.Printf("turn %d said %d (last %d, saw on t%d)\n", turn, next, last, last_turn)
-			} else {
-				next = 0
-				// fmt.Printf("turn %d said %d (last %d, was new)\n", turn, next, last)
 			}
+			// else {
+			// 	next = 0
+			// 	// fmt.Printf("turn %d said %d (last %d, was new)\n", turn, next, last)
+			// }
 
 			seen[last] = turn - 1
 			last = next
 		}
-		fmt.Println(last)
-		fmt.Println("correct", answer)
+		fmt.Println("on turn 2020:", last)
+		if answer > 0 {
+			if last == answer {
+				fmt.Println("ok")
+			} else {
+				fmt.Println("should be", answer)
+			}
+			// fmt.Println("[ correct", answer, "]")
+		}
 
 		// fmt.Printf("%v %v\n", seen, answer)
 	}
