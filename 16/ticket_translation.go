@@ -12,6 +12,8 @@ type Range struct {
 	min, max int
 }
 
+var fields map[string][]Range
+
 func parseTicket(ts string) []int {
 	split := strings.Split(ts, ",")
 	n := len(split)
@@ -23,8 +25,8 @@ func parseTicket(ts string) []int {
 	return ret
 }
 
-func checkTicket(ticket []int,
-				 fields map[string][]Range) (bool, int) {
+// check if this ticket can _ever_ be valid.
+func checkTicket(ticket []int) (bool, int) {
 	for _, v := range ticket {
 		valid := false
 		for _, valid_ranges := range fields {
@@ -42,9 +44,22 @@ func checkTicket(ticket []int,
 	return true, 0
 }
 
+// check if value v could be valid for field f.
+func could_be_valid(v int, f string) bool {
+	for _, r := range fields[f] {
+		if v >= r.min && v <= r.max {
+			return true
+		}
+	}
+	return false
+}
+
 func init_field_map(possible * []map[string]bool) {
 	for i := 0; i < len(*possible); i++ {
 		(*possible)[i] = make(map[string]bool)
+		for f, _ := range fields {
+			(*possible)[i][f] = true
+		}
 	}
 }
 
@@ -53,7 +68,7 @@ func main() {
 	scanner := bufio.NewScanner(file)
 
 	// Read fields
-	fields := make(map[string][]Range)
+	fields = make(map[string][]Range)
 	for {
 		scanner.Scan()
 		line := scanner.Text()
@@ -100,9 +115,9 @@ func main() {
 	for scanner.Scan() {
 		t := parseTicket(scanner.Text())
 		// fmt.Println(t)
-	 	valid, n := checkTicket(t, fields)
+	 	valid, n := checkTicket(t)
 	 	if ! valid {
-	 		// ticket is not valid. increment error rate
+	 		// ticket cannot be valid. increment error rate
 			ticket_scanning_error += n
 	 	} else {
 	 		// ticket is valid. adjust ranges.
@@ -111,10 +126,9 @@ func main() {
 	 		// loop through each ticket position and check
 	 		for i, fm := range possible_fields {
 	 			// loop over each field
-	 			for f, _ := range fm {
-				 	if could_be_valid(t[i], f, &fields) {
-
-				 	} else {
+	 			for f, b := range fm {
+				 	if b && !could_be_valid(t[i], f) {
+				 		fmt.Println("pos", i, f, "invalid:", t[i])
 				 		fm[f] = false
 				 	}
 	 			}
@@ -124,7 +138,40 @@ func main() {
 
 	fmt.Println("TSER", ticket_scanning_error)
 
+	definite_fields := make(map[string]int)
+
+	// clean up?
+	for len(definite_fields) != len(fields) {
+		for i, M := range possible_fields {
+			// if there's only one option, that's it!
+			n := 0
+			field := ""
+			for f, b := range M {
+				if b {
+					n += 1
+					field = f
+				}
+			}
+
+			if n == 1 {
+				fmt.Println("pos", i, "is", field)
+				definite_fields[field] = i
+
+				// remove from all others
+				for _, M2 := range possible_fields {
+					M2[field] = false
+				}
+			}
+		}
+	}
+
 	departure_prod := 1
+	for k, _ := range definite_fields {
+		if strings.HasPrefix(k, "departure") {
+			departure_prod *= myticket[definite_fields[k]]
+		}
+	}
+	fmt.Println("DP", departure_prod)
 }
 
 /*
