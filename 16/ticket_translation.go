@@ -141,7 +141,7 @@ func main() {
 	definite_fields := make(map[string]int)
 
 	// clean up?
-	for len(definite_fields) != len(fields) {
+	for len(definite_fields) < len(fields) {
 		for i, M := range possible_fields {
 			// if there's only one option, that's it!
 			n := 0
