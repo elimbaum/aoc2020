@@ -54,12 +54,32 @@ func could_be_valid(v int, f string) bool {
 	return false
 }
 
+/*
 func init_field_map(possible * []map[string]bool) {
 	for i := 0; i < len(*possible); i++ {
 		(*possible)[i] = make(map[string]bool)
 		for f, _ := range fields {
 			(*possible)[i][f] = true
 		}
+	}
+}*/
+
+func init_field_map(possible * map[string]map[int]bool) {
+	for F, _ := range fields {
+		// build set of possible indexes for this field
+		all := make(map[int]bool)
+		for i := 0; i < len(fields); i++ {
+			all[i] = true
+		}
+
+		(*possible)[F] = all
+	}
+}
+
+func map_pprint(M *map[string]map[int]bool) {
+	for k, v := range *M {
+		fmt.Println(k)
+		fmt.Println("  ", v)
 	}
 }
 
@@ -108,8 +128,10 @@ func main() {
 
 	ticket_scanning_error := 0
 
-	possible_fields := make([]map[string]bool, len(fields))
-	init_field_map(&possible_fields)
+	// possible_fields := make([]map[string]bool, len(fields))
+	// init_field_map(&possible_fields)
+	possible_idx := make(map[string]map[int]bool)
+	init_field_map(&possible_idx)
 
 	// Read nearby tickets
 	for scanner.Scan() {
@@ -123,55 +145,76 @@ func main() {
 	 		// ticket is valid. adjust ranges.
 	 		// each index should be a map of which field it could be.
 
-	 		// loop through each ticket position and check
-	 		for i, fm := range possible_fields {
-	 			// loop over each field
-	 			for f, b := range fm {
-				 	if b && !could_be_valid(t[i], f) {
-				 		fmt.Println("pos", i, f, "invalid:", t[i])
-				 		fm[f] = false
-				 	}
+	 		// loop through each field and check ticket position
+	 		for F, _ := range fields {
+	 			for i, v := range t {
+	 				if ! could_be_valid(v, F) {
+	 					delete(possible_idx[F], i)
+	 				}
 	 			}
 	 		}
+	 		// for i, fm := range possible_fields {
+	 		// 	// loop over each field
+	 		// 	for f, b := range fm {
+				//  	if b && !could_be_valid(t[i], f) {
+				//  		// fmt.Println("pos", i, f, "invalid:", t[i])
+				//  		fm[f] = false
+				//  	}
+	 		// 	}
+	 		// }
 	 	}
 	}
 
+	// 18227
 	fmt.Println("TSER", ticket_scanning_error)
 
+
+	// build the inverse map
+	// field name -> ticket position
+
+	// map of field name to actual ticket position
 	definite_fields := make(map[string]int)
-
-	// clean up?
-	for len(definite_fields) < len(fields) {
-		for i, M := range possible_fields {
-			// if there's only one option, that's it!
-			n := 0
-			field := ""
-			for f, b := range M {
-				if b {
-					n += 1
-					field = f
-				}
-			}
-
-			if n == 1 {
-				fmt.Println("pos", i, "is", field)
-				definite_fields[field] = i
-
-				// remove from all others
-				for _, M2 := range possible_fields {
-					M2[field] = false
-				}
-			}
-		}
-	}
-
 	departure_prod := 1
-	for k, _ := range definite_fields {
-		if strings.HasPrefix(k, "departure") {
-			departure_prod *= myticket[definite_fields[k]]
+
+	for {
+		// map_pprint(&possible_idx)
+		for F, idx_map := range possible_idx {
+			if len(idx_map) == 1 {
+				// got it!
+				var pos int
+
+				for k, _ := range idx_map {
+					pos = k
+					break
+				}
+
+				fmt.Println("== pos", pos, "must be", F)
+				definite_fields[F] = pos 
+
+				if strings.HasPrefix(F, "departure ") {
+					departure_prod *= myticket[pos]
+				}
+
+				// remove pos from all others
+				for _, idx_map2 := range possible_idx {
+					delete(idx_map2, pos)
+				}
+
+				// don't look at this guy again
+				delete(possible_idx, F)
+			}
+
+			continue
+		}
+
+		if len(possible_idx) == 0 {
+			break
 		}
 	}
+
+	// 2355350878831
 	fmt.Println("DP", departure_prod)
+	
 }
 
 /*
