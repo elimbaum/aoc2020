@@ -41,3 +41,11 @@ for cell in alive list:
 ```
 
 Starting with 2D version to verify results.
+
+Validated 2d working; returning proper config (though mirrored) for r-pentomino 100 generations out.
+
+Move to 3D simple: add extra dimension to struct; add additional nested loop.
+
+Probably could make some recursive solution to not have to change the code layout to add dimensions, but this is fine.
+
+Second part is 4d. ha. There's going to be a bit of duplication here, particularly without generics. I guess I could make the coordinate struct a list of ints... don't feel like it's particularly worth it.
