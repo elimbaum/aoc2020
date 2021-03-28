@@ -203,8 +203,6 @@ func main() {
 				// don't look at this guy again
 				delete(possible_idx, F)
 			}
-
-			continue
 		}
 
 		if len(possible_idx) == 0 {
