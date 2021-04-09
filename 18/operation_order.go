@@ -128,41 +128,20 @@ func compute(tok []Token) int {
 				op.action(&n_stack, &op_stack)
 			}
 		default:
-			// _, isRightP := v.(RightParen)
-			// if isRightP {
-			// 	var q Operator
-			// 	for {
-			// 		q = op_stack.pop().(Operator)
-			// 		_, isLeftP := q.(LeftParen)
-			// 		if isLeftP {
-			// 			break
-			// 		}
-			// 		q.action(&n_stack, &op_stack)
-			// 	}
-			// } else {
-			// 	op_stack.push(v)
-			// }
-			// _, isLeftP := v.(LeftParen)
-			// // _, isRightP := v.(RightParen)
-			// if isLeftP || op_stack.empty() {
-			// 	op_stack.push(v)
-			// } else {
-			// 	var q Operator
-			// 	for {
-			// 		q = op_stack.pop().(Operator)
-			// 		_, isLeftP := q.(LeftParen)
-			// 		if isLeftP {
-			// 			break
-			// 		}
-			// 		q.action(&n_stack, &op_stack)
-			// 	}	
-			// }
-			op_stack.push(v)
+			_, isRightP := v.(RightParen)
+			if isRightP {
+				var q Operator
+				for ! op_stack.empty(){
+					q = op_stack.pop().(Operator)
+					q.action(&n_stack, &op_stack)
+				}
+			} else {
+				op_stack.push(v)
+			}
 		}
 		fmt.Println("n:", n_stack)
-		fmt.Print("op: ")
+		fmt.Print("   op: ")
 		op_stack.printT()
-		fmt.Println("-")
 	}
 
 	for !op_stack.empty() {
@@ -174,7 +153,7 @@ func compute(tok []Token) int {
 }
 
 func main() {
-	file, _ := os.Open("simple.txt")
+	file, _ := os.Open("more.txt")
 	scanner := bufio.NewScanner(file)
 
 	wrong := 0
