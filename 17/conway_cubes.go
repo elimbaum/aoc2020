@@ -22,9 +22,9 @@ const DEAD_RUNE = '.'
 const ALIVE = true
 const DEAD = false
 
-const NUM_GEN = 6
+const NUM_GEN = 20
 
-// 4d versions
+// 4d version
 func countNeighbors(c Coord) int {
 	count := 0
 	for dx := -1; dx <= 1; dx++ {
@@ -61,7 +61,7 @@ func nextState(alive bool, n int) bool {
 }
 
 
-//// 2D versions (original game of life)
+//// 2D version (original game of life)
 // func countNeighbors(c Coord) int {
 // 	count := 0
 // 	for dx := -1; dx <= 1; dx++ {
@@ -86,6 +86,7 @@ func nextState(alive bool, n int) bool {
 	
 // }
 
+//// this is also 2d only
 // func (B Board) toGrid() {
 // 	var NWcorner, SEcorner Coord
 
@@ -157,7 +158,7 @@ func (B * Board) countAlive() int {
 }
 
 func main() {
-	file, _ := os.Open("input.txt")
+	file, _ := os.Open("r_pent.txt")
 	scanner := bufio.NewScanner(file)
 
 	current = make(Board)
