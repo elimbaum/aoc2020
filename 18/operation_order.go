@@ -134,7 +134,7 @@ func compute(tok []Token) int {
 	var op_stack Stack
 
 	for _, t := range tok {
-		fmt.Printf("\nTOK %#v\n", t)
+		// fmt.Printf("\nTOK %#v\n", t)
 		switch v := t.(type) {
 		// if we see a number...
 		case Number:
@@ -146,7 +146,8 @@ func compute(tok []Token) int {
 				_, isLeftP := op.(LeftParen)
 				_, isTimes := op.(Times)
 				if isLeftP || isTimes {
-					// unless the last operation was a left bracket
+					// unless the last operation was a left bracket, or times
+					// (push for order of operations handling)
 					op_stack.push(op)
 				} else {
 					op.action(&n_stack, &op_stack)	
@@ -179,20 +180,20 @@ func compute(tok []Token) int {
 		default:
 			op_stack.push(v)
 		}
-		fmt.Println("n:", n_stack)
-		fmt.Print("   op: ")
-		op_stack.printT()
+		// fmt.Println("n:", n_stack)
+		// fmt.Print("   op: ")
+		// op_stack.printT()
 	}
 
-	fmt.Println("--")
+	// fmt.Println("--")
 
 	for !op_stack.empty() {
 		op := op_stack.pop().(Operator)
 		op.action(&n_stack, &op_stack)
 
-		fmt.Println("n:", n_stack)
-		fmt.Print("   op: ")
-		op_stack.printT()
+		// fmt.Println("n:", n_stack)
+		// fmt.Print("   op: ")
+		// op_stack.printT()
 	}
 
 	if len(n_stack) > 1 {
