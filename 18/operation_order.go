@@ -64,6 +64,9 @@ func (s * Stack) pop() interface{} {
 }
 
 func (s * Stack) peek() interface{} {
+	if len(*s) == 0 {
+		return nil
+	}
 	return (*s)[len(*s) - 1]
 }
 
@@ -131,7 +134,7 @@ func compute(tok []Token) int {
 	var op_stack Stack
 
 	for _, t := range tok {
-		// fmt.Printf("\nTOK %#v\n", t)
+		fmt.Printf("\nTOK %#v\n", t)
 		switch v := t.(type) {
 		// if we see a number...
 		case Number:
@@ -165,6 +168,14 @@ func compute(tok []Token) int {
 					op.action(&n_stack, &op_stack)
 				}
 			}
+
+			// roll up the plus
+			op, isPlus := op_stack.peek().(Plus)
+			if isPlus {
+				op_stack.pop()
+				op.action(&n_stack, &op_stack)
+			}
+
 		default:
 			op_stack.push(v)
 		}
@@ -193,7 +204,7 @@ func compute(tok []Token) int {
 }
 
 func main() {
-	file, _ := os.Open("advanced.txt")
+	file, _ := os.Open("input.txt")
 	scanner := bufio.NewScanner(file)
 
 	wrong := 0
