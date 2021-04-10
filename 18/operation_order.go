@@ -30,6 +30,7 @@ type LeftParen struct {}
 type RightParen struct {}
 
 func (o Plus) action(ns, os *Stack) {
+	// fmt.Println("PLUS")
 	a := ns.pop().(int)
 	b := ns.pop().(int)
 	ns.push(a + b)
@@ -37,6 +38,7 @@ func (o Plus) action(ns, os *Stack) {
 
 
 func (o Times) action(ns, os *Stack) {
+	// fmt.Println("TIMES")
 	a := ns.pop().(int)
 	b := ns.pop().(int)
 	ns.push(a * b)
@@ -139,7 +141,8 @@ func compute(tok []Token) int {
 			if !op_stack.empty() {
 				op := op_stack.pop().(Operator)
 				_, isLeftP := op.(LeftParen)
-				if isLeftP {
+				_, isTimes := op.(Times)
+				if isLeftP || isTimes {
 					// unless the last operation was a left bracket
 					op_stack.push(op)
 				} else {
@@ -148,31 +151,43 @@ func compute(tok []Token) int {
 			}
 		case RightParen:
 			// pop the left paren
-			op_stack.pop()
+			// op := op_stack.peek().(Operator)
+			// op_stack.pop()
 
 			// evaluate what remains inside parens
 			for !op_stack.empty() {
-				op := op_stack.peek().(Operator)
+				op := op_stack.pop().(Operator)
 				_, isLeftP := op.(LeftParen)
 				if isLeftP {
 					break
 				} else {
-					op = op_stack.pop().(Operator)
+					// op = op_stack.pop().(Operator)
 					op.action(&n_stack, &op_stack)
 				}
 			}
 		default:
 			op_stack.push(v)
 		}
-		// fmt.Println("n:", n_stack)
-		// fmt.Print("   op: ")
-		// op_stack.printT()
+		fmt.Println("n:", n_stack)
+		fmt.Print("   op: ")
+		op_stack.printT()
 	}
+
+	fmt.Println("--")
 
 	for !op_stack.empty() {
 		op := op_stack.pop().(Operator)
 		op.action(&n_stack, &op_stack)
+
+		fmt.Println("n:", n_stack)
+		fmt.Print("   op: ")
+		op_stack.printT()
 	}
+
+	if len(n_stack) > 1 {
+		panic(n_stack)	
+	}
+	
 
 	return n_stack[0].(int)
 }
