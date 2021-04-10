@@ -65,6 +65,10 @@ func (s * Stack) pop() interface{} {
 	return r
 }
 
+func (s * Stack) peek() interface{} {
+	return (*s)[len(*s) - 1]
+}
+
 func (s * Stack) push(e interface{}) {
 	*s = append(*s, e)
 }
@@ -75,7 +79,18 @@ func (s * Stack) empty() bool {
 
 func (s * Stack) printT() {
 	for _, e := range *s {
-		fmt.Printf("%T ", e)
+		k := ""
+		switch e.(type) {
+		case LeftParen:
+			k = "("
+		case RightParen:
+			k = ")"
+		case Plus:
+			k = "+"
+		case Times:
+			k = "*"
+		}
+		fmt.Printf("%s ", k)
 	}
 
 	fmt.Println()
@@ -118,6 +133,7 @@ func compute(tok []Token) int {
 	var op_stack Stack
 
 	for _, t := range tok {
+		fmt.Printf("\nTOK %#v\n", t)
 		switch v := t.(type) {
 		case Number:
 			// fmt.Print(v.v, " ")
@@ -125,19 +141,47 @@ func compute(tok []Token) int {
 
 			if !op_stack.empty() {
 				op := op_stack.pop().(Operator)
-				op.action(&n_stack, &op_stack)
-			}
-		default:
-			_, isRightP := v.(RightParen)
-			if isRightP {
-				var q Operator
-				for ! op_stack.empty(){
-					q = op_stack.pop().(Operator)
-					q.action(&n_stack, &op_stack)
+				_, isLeftP := op.(LeftParen)
+				if isLeftP {
+					op_stack.push(op)
+				} else {
+					op.action(&n_stack, &op_stack)	
 				}
-			} else {
-				op_stack.push(v)
 			}
+		case RightParen:
+			fmt.Println("RIGHT")
+			// pop the left paren
+			op_stack.pop()
+
+			// evaluate what remains
+			for !op_stack.empty() {
+				op := op_stack.peek().(Operator)
+				_, isLeftP := op.(LeftParen)
+				if isLeftP {
+					break
+				} else {
+					op = op_stack.pop().(Operator)
+					op.action(&n_stack, &op_stack)
+				}
+			}
+
+			// op := op_stack.pop().(Operator)
+			// _, isLeftP := op.(LeftParen)
+			// if !isLeftP {
+			// 	op_stack.push(op)
+			// } else {
+			// 	for !op_stack.empty() {
+			// 		q := op_stack.pop().(Operator)
+			// 		_, isLeftP := q.(LeftParen)
+			// 		if !isLeftP {
+			// 			op.action(&n_stack, &op_stack)
+			// 		} else {
+			// 			break
+			// 		}
+			// 	}
+			// }
+		default:
+			op_stack.push(v)
 		}
 		fmt.Println("n:", n_stack)
 		fmt.Print("   op: ")
@@ -153,10 +197,12 @@ func compute(tok []Token) int {
 }
 
 func main() {
-	file, _ := os.Open("more.txt")
+	file, _ := os.Open("input.txt")
 	scanner := bufio.NewScanner(file)
 
 	wrong := 0
+
+	sum := 0
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -181,6 +227,8 @@ func main() {
 
 		fmt.Print("= ", r)
 
+		sum += r
+
 		if a != "" {
 			if correct == r {
 				fmt.Print(" (OK)")
@@ -198,5 +246,6 @@ func main() {
 	}
 
 	fmt.Println(wrong, "wrong")
+	fmt.Println("sum:", sum)
 
 }
