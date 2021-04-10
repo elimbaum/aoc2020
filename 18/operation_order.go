@@ -193,7 +193,7 @@ func compute(tok []Token) int {
 }
 
 func main() {
-	file, _ := os.Open("input.txt")
+	file, _ := os.Open("advanced.txt")
 	scanner := bufio.NewScanner(file)
 
 	wrong := 0
