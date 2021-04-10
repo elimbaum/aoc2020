@@ -43,13 +43,9 @@ func (o Times) action(ns, os *Stack) {
 }
 
 func (o LeftParen) action(ns, os *Stack) {
-	fmt.Println("LEFT", *ns)
-	// os.push(o)
 }
 
 func (o RightParen) action(ns, os *Stack) {
-	fmt.Println("RIGHT", *ns)
-	// os.push(o)
 }
 
 
@@ -133,27 +129,28 @@ func compute(tok []Token) int {
 	var op_stack Stack
 
 	for _, t := range tok {
-		fmt.Printf("\nTOK %#v\n", t)
+		// fmt.Printf("\nTOK %#v\n", t)
 		switch v := t.(type) {
+		// if we see a number...
 		case Number:
-			// fmt.Print(v.v, " ")
 			n_stack.push(v.v)
 
+			// execute an operation
 			if !op_stack.empty() {
 				op := op_stack.pop().(Operator)
 				_, isLeftP := op.(LeftParen)
 				if isLeftP {
+					// unless the last operation was a left bracket
 					op_stack.push(op)
 				} else {
 					op.action(&n_stack, &op_stack)	
 				}
 			}
 		case RightParen:
-			fmt.Println("RIGHT")
 			// pop the left paren
 			op_stack.pop()
 
-			// evaluate what remains
+			// evaluate what remains inside parens
 			for !op_stack.empty() {
 				op := op_stack.peek().(Operator)
 				_, isLeftP := op.(LeftParen)
@@ -164,28 +161,12 @@ func compute(tok []Token) int {
 					op.action(&n_stack, &op_stack)
 				}
 			}
-
-			// op := op_stack.pop().(Operator)
-			// _, isLeftP := op.(LeftParen)
-			// if !isLeftP {
-			// 	op_stack.push(op)
-			// } else {
-			// 	for !op_stack.empty() {
-			// 		q := op_stack.pop().(Operator)
-			// 		_, isLeftP := q.(LeftParen)
-			// 		if !isLeftP {
-			// 			op.action(&n_stack, &op_stack)
-			// 		} else {
-			// 			break
-			// 		}
-			// 	}
-			// }
 		default:
 			op_stack.push(v)
 		}
-		fmt.Println("n:", n_stack)
-		fmt.Print("   op: ")
-		op_stack.printT()
+		// fmt.Println("n:", n_stack)
+		// fmt.Print("   op: ")
+		// op_stack.printT()
 	}
 
 	for !op_stack.empty() {
@@ -237,12 +218,7 @@ func main() {
 				wrong++
 			}
 		}
-
-		fmt.Println("\n\n")
-
-		// for _, k := range tok {
-		// 	fmt.Printf("%T %+v\n", k, k)
-		// }
+		fmt.Println()
 	}
 
 	fmt.Println(wrong, "wrong")
